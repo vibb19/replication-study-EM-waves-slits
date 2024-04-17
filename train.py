@@ -16,7 +16,7 @@ from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.neural_network import MLPRegressor
 from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor, GradientBoostingRegressor, AdaBoostRegressor
 from sklearn.svm import SVR
-from sklearn.externals import joblib
+import joblib
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 
@@ -57,6 +57,9 @@ class CustomLoss:
 
         if 'rmse' in self.loss_function_array:
             loss = loss + K.sqrt(K.mean(K.square(y_pred - y_true)))
+
+        if 'rmsle' in self.loss_function_array:
+            loss = loss + K.sqrt(K.mean(K.square(K.log(y_pred + 1) - K.log(y_true + 1))))
 
         if 'diff_rmse' in self.loss_function_array:
             loss = loss + K.sqrt(K.mean(K.square(y_pred_diff - y_true_diff)))
@@ -267,9 +270,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model", help="Select model type.", default="cnn")
     parser.add_argument("-s", "--shape", help="Select input image shape. (rectangle or square?)", default='rect')
-    parser.add_argument("-l", "--loss_function", help="Select loss functions.. (rmse,diff_rmse,diff_ce)",
+    parser.add_argument("-l", "--loss_function", help="Select loss functions.. (rmse, rmsle, diff_rmse,diff_ce)",
                         default='rmse')
-    parser.add_argument("-e", "--epochs", help="Set epochs", default=300)
+    parser.add_argument("-e", "--epochs", help="Set epochs", default=30)
     parser.add_argument("-b", "--batch_size", help="Set batch size", default=128)
     parser.add_argument("-n", "--is_normalized", help="Set is Normalized", action='store_true')
     parser.add_argument("-d", "--data_type", help="Select data type.. (train, valid, test)",
@@ -436,6 +439,7 @@ if __name__ == '__main__':
         # serialize model to JSON
         model_json = model.to_json()
         model_export_path_folder = 'models/{}_{}_{}'.format(model_name, batch_size, epochs)
+        print(model_export_path_folder)
         if not os.path.exists(model_export_path_folder):
             os.makedirs(model_export_path_folder)
 

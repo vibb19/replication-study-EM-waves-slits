@@ -6,7 +6,7 @@ from keras import losses
 from keras.layers import Average
 from keras.models import Model
 from keras.models import model_from_json
-from sklearn.externals import joblib
+import joblib
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.signal import find_peaks
 import numpy as np
@@ -34,6 +34,9 @@ class CustomLoss():
         if 'rmse' in self.loss_function_array:
             loss = loss + K.sqrt(K.mean(K.square(y_pred - y_true)))
 
+        if 'rmsle' in self.loss_function_array:
+            loss = loss + K.sqrt(K.mean(K.square(K.log(y_pred + 1) - K.log(y_true + 1))))
+
         if 'diff_rmse' in self.loss_function_array:
             loss = loss + K.sqrt(K.mean(K.square(y_pred_diff - y_true_diff)))
 
@@ -47,6 +50,11 @@ class CustomLoss():
 
 def root_mean_squared_error(y_true, y_pred):
     return K.sqrt(K.mean(K.square(y_pred - y_true), axis=-1))
+
+def root_mean_squared_log_error(y_true, y_pred):
+    y_true = K.cast(y_true, dtype='float32')
+    y_pred = K.cast(y_pred, dtype='float32')
+    return K.sqrt(K.mean(K.square(K.log(y_pred + 1) - K.log(y_true + 1))))
 
 def normalized_error(y_true, y_pred):
     return K.sqrt(K.mean(K.square((y_pred - y_true) / 2600 / (y_true / 2600)), axis=-1))
@@ -202,6 +210,7 @@ DATASETS = [
 
 model_names = [
     'RMSE',
+    'RMSLE',
     'RMSE + diff.RMSE',
     'RMSE + diff.BCE'
 ]
@@ -212,9 +221,9 @@ model_names = [
 # ]
 #
 model_name_details = [
-    'cnn_4l16_d0.4_noBN_128_300/rmse_rect_1',
-    'cnn_4l16_d0.4_noBN_128_300/rmse,diff_bce_rect_1',
-    'cnn_4l16_d0.4_noBN_128_300/rmse,diff_rmse_rect_1',
+    'cnn_128_30/rmsle_rect_1',
+#    'cnn_1000_2/rmse,diff_bce_rect_1',
+#    'cnn_1000_2/rmse,diff_rmse_rect_1',
 ]
 
 colors=[
@@ -387,6 +396,7 @@ for i, model_name_detail in enumerate(model_name_details):
 
     meanSquaredError = mean_squared_error(y_test, y_predict)
     rmse = sqrt(meanSquaredError)
+    rmsle = root_mean_squared_log_error(y_test, y_predict)
 
     rmse_all = []
     count = 0
@@ -430,7 +440,8 @@ for i, model_name_detail in enumerate(model_name_details):
     plt.clf()
 
 print('running time:', result_runningTime)
-print('rmse: ', result_rmse)
+# print('rmse: ', result_rmse)
+print('rmsle: ', rmsle)
 print('rmse local minmax: ', result_rmse2)
 print('r2: ', result_r2)
 print('r2-local: ', result_r2_local_minmax)

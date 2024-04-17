@@ -6,7 +6,7 @@ from keras import losses
 from keras.layers import Average
 from keras.models import Model
 from keras.models import model_from_json
-from sklearn.externals import joblib
+import joblib
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.signal import find_peaks
 import numpy as np
