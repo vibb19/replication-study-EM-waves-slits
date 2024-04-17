@@ -28,11 +28,11 @@ curl -O https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
 sha256sum Anaconda3-2019.10-Linux-x86_64.sh
 bash Anaconda3-2019.10-Linux-x86_64.sh
 
-conda create -n maxwellfdfd-ai python=3.7
+conda create -n maxwellfdfd-ai 
 conda activate maxwellfdfd-ai
-pip install -r requirements.txt
+pip install -r requirements.txt 
 ```
-
+optionally, use conda and conda-forge to install relevant packages
  
 # Run script 
 
